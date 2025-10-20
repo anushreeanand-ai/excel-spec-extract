@@ -75,22 +75,15 @@ export const parseExcelFile = async (file: File): Promise<AttributeData[]> => {
           // Get allowed values from Valid Values sheet
           const allowedValues: string[] = [];
           
-          // Extract base attribute name (before dash if present)
-          const baseAttributeName = attributeName.split('-')[0].trim().toLowerCase();
-          
           for (const row of validValuesData) {
             // Column B (index 1) has the attribute name
             const validValuesAttributeName = row[1]?.toString().trim();
             
             if (!validValuesAttributeName) continue;
             
-            const validValuesBaseName = validValuesAttributeName.trim().toLowerCase();
-            
-            // Match attribute name (exact match or base name match)
-            const isMatch = 
-              validValuesBaseName === attributeName.toLowerCase() ||
-              validValuesBaseName === baseAttributeName ||
-              baseAttributeName.startsWith(validValuesBaseName);
+            // Check if Valid Values attribute name starts with Template attribute name
+            // e.g., "Update Delete" matches "Update Delete - [ dress ]"
+            const isMatch = validValuesAttributeName.toLowerCase().startsWith(attributeName.toLowerCase());
             
             if (isMatch) {
               // Columns C onwards (index 2+) have the allowed values
