@@ -54,24 +54,6 @@ export const parseExcelFile = async (file: File): Promise<AttributeData[]> => {
           // Skip if no attribute name or code
           if (!attributeName || !attributeCode) continue;
 
-          // Row index 3 = 4th row (Data Type)
-          // Check if there's a dropdown (data validation) in this column
-          const cellAddress = XLSX.utils.encode_cell({ r: 3, c: col });
-          const cell = templateSheet[cellAddress];
-          
-          // Determine type based on data validation
-          let type = "short text";
-          if (cell && cell.v && typeof cell.v === "string") {
-            // If the cell contains specific indicators or if we can detect validation
-            // For simplicity, we'll check if there are corresponding allowed values
-            const hasAllowedValues = validValuesData.some(
-              (row) => row[1]?.toString().trim() === attributeName
-            );
-            if (hasAllowedValues) {
-              type = "list";
-            }
-          }
-
           // Get allowed values from Valid Values sheet
           const allowedValues: string[] = [];
           
@@ -97,8 +79,11 @@ export const parseExcelFile = async (file: File): Promise<AttributeData[]> => {
             }
           }
 
+          // Determine type based on allowed values
+          const type = allowedValues.length > 0 ? "List" : "Short Text";
+
           // Get mandatory status from Data Definitions sheet
-          let mandatory = false;
+          let mandatory = "FALSE";
           // Starting from row 4 (index 3)
           for (let i = 3; i < dataDefinitionsData.length; i++) {
             const row = dataDefinitionsData[i];
@@ -107,8 +92,9 @@ export const parseExcelFile = async (file: File): Promise<AttributeData[]> => {
             if (row[1]?.toString().trim() === attributeCode) {
               const mandatoryStatus = row[6]?.toString().trim().toLowerCase();
               mandatory =
-                mandatoryStatus === "required" ||
-                mandatoryStatus === "preferred";
+                mandatoryStatus === "required" || mandatoryStatus === "preferred"
+                  ? "TRUE"
+                  : "FALSE";
               break;
             }
           }

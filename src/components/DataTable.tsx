@@ -14,7 +14,7 @@ export interface AttributeData {
   attributeCode: string;
   type: string;
   allowedValues: string[];
-  mandatory: boolean;
+  mandatory: string;
 }
 
 interface DataTableProps {
@@ -90,14 +90,14 @@ export const DataTable = ({ data }: DataTableProps) => {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={row.mandatory ? "default" : "outline"}
+                    variant={row.mandatory === "TRUE" ? "default" : "outline"}
                     className={
-                      row.mandatory
+                      row.mandatory === "TRUE"
                         ? "bg-secondary text-secondary-foreground"
                         : ""
                     }
                   >
-                    {row.mandatory ? "Required" : "Optional"}
+                    {row.mandatory}
                   </Badge>
                 </TableCell>
               </TableRow>
