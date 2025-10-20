@@ -76,15 +76,19 @@ export const parseExcelFile = async (file: File): Promise<AttributeData[]> => {
           const allowedValues: string[] = [];
           for (const row of validValuesData) {
             // Column B (index 1) has the attribute name
-            if (row[1]?.toString().trim() === attributeName) {
+            const validValuesAttributeName = row[1]?.toString().trim();
+            
+            // Match attribute name (case-insensitive comparison)
+            if (validValuesAttributeName && 
+                validValuesAttributeName.toLowerCase() === attributeName.toLowerCase()) {
               // Columns C onwards (index 2+) have the allowed values
               for (let i = 2; i < row.length; i++) {
                 const value = row[i]?.toString().trim();
-                if (value) {
+                if (value && value !== "") {
                   allowedValues.push(value);
                 }
               }
-              break;
+              break; // Stop after finding the matching attribute
             }
           }
 
