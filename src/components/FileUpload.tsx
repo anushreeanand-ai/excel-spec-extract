@@ -52,40 +52,40 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
   return (
     <div
       className={cn(
-        "relative rounded-lg border-2 border-dashed transition-all duration-300",
+        "relative rounded-xl border-2 border-dashed transition-all duration-300",
         isDragging
-          ? "border-primary bg-accent/50 scale-[1.02]"
-          : "border-border bg-card hover:border-primary/50 hover:bg-accent/30",
+          ? "border-primary bg-accent/50 scale-[1.01]"
+          : "border-border bg-card hover:border-primary/40 hover:bg-muted/30",
         isProcessing && "opacity-50 pointer-events-none"
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <label className="flex flex-col items-center justify-center px-6 py-12 cursor-pointer">
-        <div className="flex flex-col items-center justify-center space-y-4">
+      <label className="flex flex-col items-center justify-center px-8 py-16 cursor-pointer">
+        <div className="flex flex-col items-center justify-center space-y-5">
           <div
             className={cn(
-              "rounded-full p-4 transition-all duration-300",
+              "rounded-2xl p-5 transition-all duration-300",
               isDragging
-                ? "bg-primary text-primary-foreground scale-110"
-                : "bg-accent text-accent-foreground"
+                ? "bg-primary text-primary-foreground scale-105"
+                : "bg-muted text-muted-foreground"
             )}
           >
             {isDragging ? (
-              <FileSpreadsheet className="w-10 h-10" />
+              <FileSpreadsheet className="w-12 h-12" />
             ) : (
-              <Upload className="w-10 h-10" />
+              <Upload className="w-12 h-12" />
             )}
           </div>
           <div className="text-center space-y-2">
-            <p className="text-lg font-semibold text-foreground">
+            <p className="text-xl font-semibold text-foreground">
               {isDragging ? "Drop your Excel file here" : "Upload Excel File"}
             </p>
             <p className="text-sm text-muted-foreground">
               Drag and drop or click to browse
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground/80">
               Supports .xlsx and .xls files
             </p>
           </div>

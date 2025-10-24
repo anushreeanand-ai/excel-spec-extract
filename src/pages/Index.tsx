@@ -44,17 +44,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-gradient-to-br from-primary to-primary/80 p-2.5 shadow-md">
-              <FileSpreadsheet className="w-6 h-6 text-primary-foreground" />
+      <header className="border-b border-border bg-card">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-primary p-3 shadow-sm">
+              <FileSpreadsheet className="w-7 h-7 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">
                 Amazon Attribute Extractor
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mt-1">
                 Extract and manage product attributes from Excel templates
               </p>
             </div>
@@ -85,17 +85,17 @@ const Index = () => {
           ) : (
             <>
               {/* Success Message */}
-              <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+              <div className="bg-card rounded-xl border border-border p-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-full bg-secondary/10 p-2">
+                  <div className="flex items-center gap-4">
+                    <div className="rounded-xl bg-secondary/10 p-3">
                       <CheckCircle2 className="w-6 h-6 text-secondary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">
+                      <h3 className="text-lg font-semibold text-foreground">
                         Successfully Extracted
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-0.5">
                         {extractedData.length} attributes from {fileName}
                       </p>
                     </div>
@@ -103,7 +103,7 @@ const Index = () => {
                   <Button
                     variant="outline"
                     onClick={handleReset}
-                    className="hover:bg-accent"
+                    size="sm"
                   >
                     Upload New File
                   </Button>
@@ -112,11 +112,11 @@ const Index = () => {
 
               {/* Data Table */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-foreground">
+                <div>
+                  <h2 className="text-2xl font-semibold text-foreground">
                     Extracted Attributes
                   </h2>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Total: {extractedData.length} attributes
                   </p>
                 </div>
