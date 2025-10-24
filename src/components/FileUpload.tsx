@@ -30,7 +30,8 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
         const file = files[0];
         if (
           file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-          file.type === "application/vnd.ms-excel"
+          file.type === "application/vnd.ms-excel" ||
+          file.type === "application/vnd.ms-excel.sheet.macroEnabled.12"
         ) {
           onFileSelect(file);
         }
@@ -86,14 +87,14 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
               Drag and drop or click to browse
             </p>
             <p className="text-xs text-muted-foreground/80">
-              Supports .xlsx and .xls files
+              Supports .xlsx, .xls, and .xlsm files
             </p>
           </div>
         </div>
         <input
           type="file"
           className="hidden"
-          accept=".xlsx,.xls"
+          accept=".xlsx,.xls,.xlsm"
           onChange={handleFileInput}
           disabled={isProcessing}
         />
