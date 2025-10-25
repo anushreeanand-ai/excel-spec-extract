@@ -33,18 +33,23 @@ export const parseZipFile = async (file: File): Promise<FileData[]> => {
     // Determine marketplace from filename or folder structure
     let marketplace: "Amazon" | "Flipkart" | "Myntra" | null = null;
     
-    // Check if path or filename contains marketplace identifier
+    // Check if path or filename contains marketplace identifier (case-insensitive)
     const pathLower = path.toLowerCase();
-    if (pathLower.includes("amazon")) {
+    const fileNameLower = fileName.toLowerCase();
+    
+    if (pathLower.includes("amazon") || fileNameLower.includes("amazon")) {
       marketplace = "Amazon";
-    } else if (pathLower.includes("flipkart")) {
+    } else if (pathLower.includes("flipkart") || fileNameLower.includes("flipkart")) {
       marketplace = "Flipkart";
-    } else if (pathLower.includes("myntra")) {
+    } else if (pathLower.includes("myntra") || fileNameLower.includes("myntra")) {
       marketplace = "Myntra";
     }
 
+    console.log(`Processing file: ${fileName}, Path: ${path}, Detected marketplace: ${marketplace}`);
+
     // If no marketplace identified, skip this file
     if (!marketplace) {
+      console.log(`Skipping file ${fileName} - no marketplace detected`);
       continue;
     }
 
