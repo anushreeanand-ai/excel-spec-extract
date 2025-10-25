@@ -13,11 +13,12 @@ export const parseZipFile = async (file: File): Promise<FileData[]> => {
   for (const [path, zipEntry] of Object.entries(zipContent.files)) {
     if (zipEntry.dir) continue;
 
-    // Determine marketplace from path
-    const pathParts = path.split("/");
-    if (pathParts.length < 2) continue;
+    // Skip macOS system files
+    if (path.includes("__MACOSX") || path.includes(".DS_Store")) {
+      continue;
+    }
 
-    const marketplace = pathParts[0];
+    const pathParts = path.split("/");
     const fileName = pathParts[pathParts.length - 1];
 
     // Only process Excel files
@@ -29,12 +30,21 @@ export const parseZipFile = async (file: File): Promise<FileData[]> => {
       continue;
     }
 
-    // Only process files in the three target folders
-    if (
-      marketplace !== "Amazon" &&
-      marketplace !== "Flipkart" &&
-      marketplace !== "Myntra"
-    ) {
+    // Determine marketplace from filename or folder structure
+    let marketplace: "Amazon" | "Flipkart" | "Myntra" | null = null;
+    
+    // Check if path or filename contains marketplace identifier
+    const pathLower = path.toLowerCase();
+    if (pathLower.includes("amazon")) {
+      marketplace = "Amazon";
+    } else if (pathLower.includes("flipkart")) {
+      marketplace = "Flipkart";
+    } else if (pathLower.includes("myntra")) {
+      marketplace = "Myntra";
+    }
+
+    // If no marketplace identified, skip this file
+    if (!marketplace) {
       continue;
     }
 
