@@ -29,9 +29,9 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
       if (files.length > 0) {
         const file = files[0];
         if (
-          file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-          file.type === "application/vnd.ms-excel" ||
-          file.type === "application/vnd.ms-excel.sheet.macroEnabled.12"
+          file.type === "application/zip" ||
+          file.type === "application/x-zip-compressed" ||
+          file.name.endsWith(".zip")
         ) {
           onFileSelect(file);
         }
@@ -81,20 +81,20 @@ export const FileUpload = ({ onFileSelect, isProcessing }: FileUploadProps) => {
           </div>
           <div className="text-center space-y-2">
             <p className="text-xl font-semibold text-foreground">
-              {isDragging ? "Drop your Excel file here" : "Upload Excel File"}
+              {isDragging ? "Drop your ZIP file here" : "Upload ZIP File"}
             </p>
             <p className="text-sm text-muted-foreground">
               Drag and drop or click to browse
             </p>
             <p className="text-xs text-muted-foreground/80">
-              Supports .xlsx, .xls, and .xlsm files
+              ZIP file with Amazon, Flipkart, and Myntra folders
             </p>
           </div>
         </div>
         <input
           type="file"
           className="hidden"
-          accept=".xlsx,.xls,.xlsm"
+          accept=".zip"
           onChange={handleFileInput}
           disabled={isProcessing}
         />

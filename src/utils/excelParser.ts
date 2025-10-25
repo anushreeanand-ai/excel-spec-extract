@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import { AttributeData } from "@/components/DataTable";
+import { AttributeData } from "@/types/attributeData";
 
 export const parseExcelFile = async (file: File): Promise<AttributeData[]> => {
   return new Promise((resolve, reject) => {

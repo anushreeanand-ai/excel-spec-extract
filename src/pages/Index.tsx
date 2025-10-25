@@ -1,131 +1,155 @@
 import { useState } from "react";
 import { FileUpload } from "@/components/FileUpload";
-import { DataTable, AttributeData } from "@/components/DataTable";
-import { parseExcelFile } from "@/utils/excelParser";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, FileSpreadsheet, CheckCircle2 } from "lucide-react";
+import { FilesList } from "@/components/FilesList";
+import { EditAttributesDialog } from "@/components/EditAttributesDialog";
+import { parseZipFile } from "@/utils/zipParser";
+import { FileData } from "@/types/attributeData";
+import { toast } from "@/hooks/use-toast";
+import { Loader2, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [extractedData, setExtractedData] = useState<AttributeData[]>([]);
-  const [fileName, setFileName] = useState<string>("");
-  const { toast } = useToast();
+  const [filesData, setFilesData] = useState<FileData[]>([]);
+  const [editingFile, setEditingFile] = useState<FileData | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
-    setFileName(file.name);
-
     try {
-      const data = await parseExcelFile(file);
-      setExtractedData(data);
+      const extracted = await parseZipFile(file);
       
-      toast({
-        title: "Success!",
-        description: `Extracted ${data.length} attributes from ${file.name}`,
-      });
+      if (extracted.length === 0) {
+        toast({
+          title: "No Files Found",
+          description: "No valid Excel files found in the ZIP. Please ensure files are in Amazon, Flipkart, or Myntra folders.",
+          variant: "destructive",
+        });
+      } else {
+        setFilesData(extracted);
+        toast({
+          title: "Success!",
+          description: `Extracted ${extracted.length} file(s) from ${file.name}`,
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to parse Excel file",
+        description: error instanceof Error ? error.message : "Failed to process ZIP file",
         variant: "destructive",
       });
-      setExtractedData([]);
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const handleEdit = (fileData: FileData) => {
+    setEditingFile(fileData);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdits = (updatedFileData: FileData) => {
+    setFilesData((prev) =>
+      prev.map((f) =>
+        f.fileName === updatedFileData.fileName &&
+        f.marketplace === updatedFileData.marketplace
+          ? updatedFileData
+          : f
+      )
+    );
+  };
+
+  const handleDownload = (fileData: FileData) => {
+    const jsonData = {
+      fileName: fileData.fileName,
+      marketplace: fileData.marketplace,
+      attributes: fileData.attributes,
+    };
+
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], {
+      type: "application/json",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${fileData.fileName.replace(/\.[^/.]+$/, "")}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Download Started",
+      description: `Downloading ${fileData.fileName} as JSON`,
+    });
+  };
+
   const handleReset = () => {
-    setExtractedData([]);
-    setFileName("");
+    setFilesData([]);
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-8">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-primary p-3 shadow-sm">
-              <FileSpreadsheet className="w-7 h-7 text-primary-foreground" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+              <FileSpreadsheet className="w-8 h-8 text-primary" />
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">
-                Amazon Attribute Extractor
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Extract and manage product attributes from Excel templates
-              </p>
-            </div>
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Marketplace Attribute Extractor
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Extract and manage product attributes from Amazon, Flipkart, and
+              Myntra templates
+            </p>
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Upload Section */}
-          {extractedData.length === 0 ? (
+          {/* Content */}
+          {filesData.length === 0 ? (
             <div className="max-w-2xl mx-auto">
               <FileUpload
                 onFileSelect={handleFileSelect}
                 isProcessing={isProcessing}
               />
-              
               {isProcessing && (
                 <div className="mt-6 flex items-center justify-center gap-3 text-muted-foreground">
-                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   <span className="text-sm font-medium">
-                    Processing {fileName}...
+                    Processing ZIP file...
                   </span>
                 </div>
               )}
             </div>
           ) : (
-            <>
-              {/* Success Message */}
-              <div className="bg-card rounded-xl border border-border p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="rounded-xl bg-secondary/10 p-3">
-                      <CheckCircle2 className="w-6 h-6 text-secondary" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">
-                        Successfully Extracted
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        {extractedData.length} attributes from {fileName}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    onClick={handleReset}
-                    size="sm"
-                  >
-                    Upload New File
-                  </Button>
-                </div>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {filesData.length} file{filesData.length !== 1 ? "s" : ""}{" "}
+                  extracted successfully
+                </p>
+                <Button variant="outline" onClick={handleReset}>
+                  Upload New ZIP
+                </Button>
               </div>
-
-              {/* Data Table */}
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-semibold text-foreground">
-                    Extracted Attributes
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Total: {extractedData.length} attributes
-                  </p>
-                </div>
-                <DataTable data={extractedData} />
-              </div>
-            </>
+              <FilesList
+                filesData={filesData}
+                onEdit={handleEdit}
+                onDownload={handleDownload}
+              />
+            </div>
           )}
         </div>
-      </main>
+      </div>
+
+      <EditAttributesDialog
+        fileData={editingFile}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSave={handleSaveEdits}
+      />
     </div>
   );
 };
